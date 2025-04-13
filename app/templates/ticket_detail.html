@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ ticket.id }} - Feedback System{% endblock %}
+
+{% block content %}
+{% if current_user.is_authenticated %}
+<div class="row">
+    <div class="col-md-{% if current_user.username == 'admin' %}8{% else %}12{% endif %}">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="mb-0">Ticket #{{ ticket.id }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h5>Program</h5>
+                        <p>{{ ticket.program_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Type</h5>
+                        <p>{{ ticket.error_type | title }}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h5>Submitted By</h5>
+                        <p>{{ ticket.name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Email</h5>
+                        <p><a href="mailto:{{ ticket.email }}">{{ ticket.email }}</a></p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h5>Description</h5>
+                    <p class="border rounded p-3 bg-light">{{ ticket.description | nl2br }}</p>
+                </div>
+
+                {% if ticket.attachment_path %}
+                <div class="mb-4">
+                    <h5>Attachment</h5>
+                    <p><a href="{{ url_for('static', filename='uploads/' + ticket.attachment_path) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-file-earmark"></i> View Attachment
+                    </a></p>
+                </div>
+                {% endif %}
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h5>Created</h5>
+                        <p>{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Last Updated</h5>
+                        <p>{{ ticket.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <h5>Status</h5>
+                    <span class="badge bg-{{ {
+                        'Open': 'primary',
+                        'In Progress': 'warning',
+                        'Resolved': 'success',
+                        'Closed': 'secondary'
+                    }[ticket.status] }}">{{ ticket.status }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if current_user.username == 'admin' %}
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Update Status</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.csrf_token }}
+                    <div class="mb-3">
+                        {{ form.status.label(class="form-label") }}
+                        {{ form.status(class="form-select") }}
+                        {% if form.status.errors %}
+                            {% for error in form.status.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <h4 class="alert-heading">Access Restricted</h4>
+    <p>You need to be logged in to view ticket details.</p>
+    <hr>
+    <p class="mb-0">Please <a href="{{ url_for('main.login') }}" class="alert-link">log in</a> to continue.</p>
+</div>
+{% endif %}
+{% endblock %}

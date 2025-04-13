@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}View Tickets - Feedback System{% endblock %}
+
+{% block content %}
+{% if current_user.is_authenticated %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">{% if current_user.username == 'admin' %}All {% endif %}Tickets</h2>
+        <a href="{{ url_for('main.submit_ticket') }}" class="btn btn-primary">New Ticket</a>
+    </div>
+    <div class="card-body">
+        <!-- Search and Filter Form -->
+        <form class="row g-3 mb-4">
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="search" placeholder="Search by program name or description..." value="{{ request.args.get('search', '') }}">
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" name="status">
+                    <option value="">All Statuses</option>
+                    <option value="Open" {% if request.args.get('status') == 'Open' %}selected{% endif %}>Open</option>
+                    <option value="In Progress" {% if request.args.get('status') == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Resolved" {% if request.args.get('status') == 'Resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="Closed" {% if request.args.get('status') == 'Closed' %}selected{% endif %}>Closed</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+
+        <!-- Tickets Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Program</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        {% if current_user.username == 'admin' %}<th>Submitted By</th>{% endif %}
+                        <th>Created</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets.items %}
+                    <tr>
+                        <td>#{{ ticket.id }}</td>
+                        <td>{{ ticket.program_name }}</td>
+                        <td>{{ ticket.error_type | title }}</td>
+                        <td>
+                            <span class="badge bg-{{ {
+                                'Open': 'primary',
+                                'In Progress': 'warning',
+                                'Resolved': 'success',
+                                'Closed': 'secondary'
+                            }[ticket.status] }}">{{ ticket.status }}</span>
+                        </td>
+                        {% if current_user.username == 'admin' %}<td>{{ ticket.name }}</td>{% endif %}
+                        <td>{{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <a href="{{ url_for('main.ticket_detail', id=ticket.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="{{ 7 if current_user.username == 'admin' else 6 }}" class="text-center">No tickets found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if tickets.pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% for page_num in tickets.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                    {% if page_num %}
+                        <li class="page-item {{ 'active' if page_num == tickets.page else '' }}">
+                            <a class="page-link" href="{{ url_for('main.view_tickets', page=page_num, status=request.args.get('status', ''), search=request.args.get('search', '')) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <h4 class="alert-heading">Access Restricted</h4>
+    <p>You need to be logged in to view tickets.</p>
+    <hr>
+    <p class="mb-0">Please <a href="{{ url_for('main.login') }}" class="alert-link">log in</a> to continue.</p>
+</div>
+{% endif %}
+{% endblock %}

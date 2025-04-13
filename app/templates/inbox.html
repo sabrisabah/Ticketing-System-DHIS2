@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Inbox - Feedback System{% endblock %}
+
+{% block content %}
+{% if current_user.is_authenticated %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="mb-0">{% if current_user.username == 'admin' %}All {% endif %}Notifications</h2>
+    </div>
+    <div class="card-body">
+        {% if notifications %}
+        <div class="list-group">
+            {% for notification in notifications %}
+            <div class="list-group-item list-group-item-action {% if not notification.is_read %}active{% endif %}">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">Ticket #{{ notification.ticket_id }}: {{ notification.ticket.program_name }}</h5>
+                    <small>{{ notification.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+                <p class="mb-1">{{ notification.message }}</p>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <a href="{{ url_for('main.ticket_detail', id=notification.ticket_id) }}" class="btn btn-sm {% if notification.is_read %}btn-outline-primary{% else %}btn-light{% endif %}">
+                        View Ticket Details
+                    </a>
+                    {% if not notification.is_read %}
+                    <form method="POST" action="{{ url_for('main.mark_notification_read', id=notification.id) }}" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-outline-light">Mark as Read</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center text-muted my-5">No notifications to display.</p>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <h4 class="alert-heading">Access Restricted</h4>
+    <p>You need to be logged in to view notifications.</p>
+    <hr>
+    <p class="mb-0">Please <a href="{{ url_for('main.login') }}" class="alert-link">log in</a> to continue.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Home - Feedback System{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4">Welcome to the Feedback System</h1>
+    <p class="lead">Submit and track feedback or error reports for any program</p>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="bi bi-envelope-plus display-4 mb-3 text-primary"></i>
+                    <h5 class="card-title">Submit Ticket</h5>
+                    <p class="card-text">Report an issue or submit feedback</p>
+                    <a href="{{ url_for('main.submit_ticket') }}" class="btn btn-primary">Submit New Ticket</a>
+                </div>
+            </div>
+        </div>
+        {% if current_user.is_authenticated %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="bi bi-envelope-paper display-4 mb-3 text-primary"></i>
+                    <h5 class="card-title">View Tickets</h5>
+                    <p class="card-text">Track existing tickets and their status</p>
+                    <a href="{{ url_for('main.view_tickets') }}" class="btn btn-primary">View All Tickets</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-badge display-4 mb-3 text-primary"></i>
+                    <h5 class="card-title">Admin Access</h5>
+                    <p class="card-text">Log in or register to manage tickets</p>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('main.login') }}" class="btn btn-primary">Login</a>
+                        <a href="{{ url_for('main.register') }}" class="btn btn-outline-primary">Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

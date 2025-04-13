@@ -1,0 +1,9 @@
+flask==3.1.0
+flask-sqlalchemy==3.1.1
+flask-wtf==1.2.2
+flask-mail==0.10.0
+flask-login==0.6.3
+email-validator==2.2.0
+Werkzeug>=3.1
+python-dotenv==1.0.0
+Pillow==10.2.0  # For image handling
